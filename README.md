@@ -65,42 +65,37 @@ python3 test_cap_finder.py
 
 ## BOM format
 
-A BOM is a CSV with one row per distinct capacitor. This is [`example_bom.csv`](example_bom.csv):
+A BOM is a CSV with one row per distinct capacitor. A two-line BOM looks like this:
+
+| Capacitance (uF) | Voltage (V) | Type | Qty | Diameter (mm) | Lead Spacing (mm) | Max Height (mm) | MPN |
+|---|---|---|---|---|---|---|---|
+| 470 | 25 | Radial | 2 | 10 | 5 | 20 | |
+| 0.47 | 100 | Film | 1 | | | | MKS2D034701E00KSSD |
+
+The first line searches for two 470 µF 25 V caps in a 10 mm can with 5 mm lead spacing, at most
+20 mm tall. The second skips the search and buys exactly the WIMA film cap MKS2D034701E00KSSD.
+
+As a file:
 
 ```csv
 Capacitance (uF),Voltage (V),Type,Qty,Diameter (mm),Lead Spacing (mm),Max Height (mm),MPN
-10,16,Radial,4,5,2,,
-22,16,Radial,3,5,2,,
-22,10,Radial,1,5,2,,
-47,25,Radial,2,,,,
-100,35,Radial,1,8,3.5,14,
 470,25,Radial,2,10,5,20,
-2200,35,Radial,1,16,7.5,32,
-10,16,Bipolar,1,,,,
 0.47,100,Film,1,,,,MKS2D034701E00KSSD
-1000,200,Large can,1,35,10,45,
 ```
 
-What each kind of row asks for:
+Columns:
 
-- `10,16,Radial,4,5,2,,` – four 10 µF 16 V caps in a 5 mm can with 2 mm lead spacing.
-- `47,25,Radial,2,,,,` – two 47 µF 25 V caps, any size. Blank size columns mean no limit.
-- `470,25,Radial,2,10,5,20,` – a 10 mm can with 5 mm lead spacing, at most 20 mm tall.
-- `22,16,...` and `22,10,...` – the same value in the same 5 mm can. With `--consolidate`
-  the 10 V line is folded into the 16 V part, so you buy one part number.
-- `10,16,Bipolar,1,,,,` – `Type` set to `Bipolar` searches bi-polar parts (85 °C rated ones
-  allowed). Any other `Type` (`Radial`, `Film`, `Large can`, blank) is just a label.
-- `0.47,100,Film,1,,,,MKS2D034701E00KSSD` – an `MPN` means "buy exactly this part": no search,
-  and the size columns are ignored. Here a WIMA film cap replaces a small electrolytic.
-- `1000,200,Large can,1,35,10,45,` – a snap-in can with its measured diameter, lead spacing and height.
+- `Capacitance (uF)`, `Voltage (V)`, `Qty`: required. Voltage is matched exactly.
+- `Type`: `Bipolar` searches bi-polar parts (85 °C rated ones allowed). Anything else (`Radial`,
+  `Film`, `Large can`, blank) is just a label.
+- `Diameter (mm)`, `Lead Spacing (mm)`, `Max Height (mm)`: size limits. Blank means no limit.
+- `MPN`: buy exactly this manufacturer part number, no search; the size columns are ignored. Use
+  it for film caps or higher-voltage substitutes.
+
+[`example_bom.csv`](example_bom.csv) has more lines, including a pair that `--consolidate` merges.
 
 Rules:
 
-- Only `Capacitance (uF)`, `Voltage (V)` and `Qty` are required. This is a complete BOM:
-  ```csv
-  Capacitance (uF),Voltage (V),Qty
-  470,25,2
-  ```
 - Column names must match exactly, in any order. Optional columns can be blank or left out.
 - Extra columns are ignored, so you can keep notes in the file, e.g. a `Refs` column with the
   board designators.
