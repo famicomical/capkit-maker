@@ -63,25 +63,51 @@ python3 cap_finder.py --bom "My BOM.csv" --vendor digikey
 python3 test_cap_finder.py
 ```
 
-See [`example_bom.csv`](example_bom.csv) for a BOM that uses every column.
-
 ## BOM format
 
-A CSV with a header row and one row per distinct capacitor. Column names must match exactly; extra
-columns are ignored, and optional columns can be left out or left blank.
+A BOM is a CSV with one row per distinct capacitor. This is [`example_bom.csv`](example_bom.csv):
 
-| Column | Required | Meaning |
-|---|---|---|
-| `Capacitance (uF)` | yes | e.g. `470` or `0.47` |
-| `Voltage (V)` | yes | rated voltage; matched exactly |
-| `Qty` | yes | pieces needed |
-| `Type` | no | `Bipolar` searches bi-polar parts; anything else (`Radial`, `Large can`, `Film`, blank) is a label |
-| `Diameter (mm)` | no | only parts with this can diameter |
-| `Lead Spacing (mm)` | no | only parts with this lead spacing |
-| `Max Height (mm)` | no | only parts this tall or shorter |
-| `MPN` | no | buy exactly this manufacturer part number, no search (e.g. a film cap in place of a small electrolytic); size columns are ignored |
+```csv
+Capacitance (uF),Voltage (V),Type,Qty,Diameter (mm),Lead Spacing (mm),Max Height (mm),MPN
+10,16,Radial,4,5,2,,
+22,16,Radial,3,5,2,,
+22,10,Radial,1,5,2,,
+47,25,Radial,2,,,,
+100,35,Radial,1,8,3.5,14,
+470,25,Radial,2,10,5,20,
+2200,35,Radial,1,16,7.5,32,
+10,16,Bipolar,1,,,,
+0.47,100,Film,1,,,,MKS2D034701E00KSSD
+1000,200,Large can,1,35,10,45,
+```
 
-Size limits are applied locally to the cached search results, so adding them later costs no DigiKey calls.
+What each kind of row asks for:
+
+- `10,16,Radial,4,5,2,,` – four 10 µF 16 V caps in a 5 mm can with 2 mm lead spacing.
+- `47,25,Radial,2,,,,` – two 47 µF 25 V caps, any size. Blank size columns mean no limit.
+- `470,25,Radial,2,10,5,20,` – a 10 mm can with 5 mm lead spacing, at most 20 mm tall.
+- `22,16,...` and `22,10,...` – the same value in the same 5 mm can. With `--consolidate`
+  the 10 V line is folded into the 16 V part, so you buy one part number.
+- `10,16,Bipolar,1,,,,` – `Type` set to `Bipolar` searches bi-polar parts (85 °C rated ones
+  allowed). Any other `Type` (`Radial`, `Film`, `Large can`, blank) is just a label.
+- `0.47,100,Film,1,,,,MKS2D034701E00KSSD` – an `MPN` means "buy exactly this part": no search,
+  and the size columns are ignored. Here a WIMA film cap replaces a small electrolytic.
+- `1000,200,Large can,1,35,10,45,` – a snap-in can with its measured diameter, lead spacing and height.
+
+Rules:
+
+- Only `Capacitance (uF)`, `Voltage (V)` and `Qty` are required. This is a complete BOM:
+  ```csv
+  Capacitance (uF),Voltage (V),Qty
+  470,25,2
+  ```
+- Column names must match exactly, in any order. Optional columns can be blank or left out.
+- Extra columns are ignored, so you can keep notes in the file, e.g. a `Refs` column with the
+  board designators.
+- Voltage is matched exactly. For a higher-voltage substitute, use the `MPN` column.
+- Size limits are applied locally to the cached search results, so adding measurements later costs
+  no DigiKey calls.
+- `python3 cap_finder.py --new-bom FILE` writes a BOM with every column header.
 
 ## Options
 
