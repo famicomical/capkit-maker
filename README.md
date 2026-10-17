@@ -99,7 +99,6 @@ Rules:
 - Column names must match exactly, in any order. Optional columns can be blank or left out.
 - Extra columns are ignored, so you can keep notes in the file, e.g. a `Refs` column with the
   board designators.
-- Voltage is matched exactly. For a higher-voltage substitute, use the `MPN` column.
 - Size limits are applied locally to the cached search results, so adding measurements later costs
   no DigiKey calls.
 - `python3 cap_finder.py --new-bom FILE` writes a BOM with every column header.
