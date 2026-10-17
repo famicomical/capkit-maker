@@ -1,0 +1,16 @@
+# API keys: never commit
+.digikey.env
+.mouser.env
+*.env
+
+# search cache
+.caps_cache/
+
+# output written next to BOMs
+* - Mouser results.csv
+* - Mouser cart.csv
+* - DigiKey results.csv
+* - DigiKey cart.csv
+
+__pycache__/
+.DS_Store

@@ -1,0 +1,11 @@
+Capacitance (uF),Voltage (V),Type,Qty,Diameter (mm),Lead Spacing (mm),Max Height (mm),MPN
+10,16,Radial,4,5,2,,
+22,16,Radial,3,5,2,,
+22,10,Radial,1,5,2,,
+47,25,Radial,2,,,,
+100,35,Radial,1,8,3.5,14,
+470,25,Radial,2,10,5,20,
+2200,35,Radial,1,16,7.5,32,
+10,16,Bipolar,1,,,,
+0.47,100,Film,1,,,,MKS2D034701E00KSSD
+1000,200,Large can,1,35,10,45,
